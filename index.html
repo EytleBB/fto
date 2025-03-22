@@ -1,191 +1,296 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>图片与转盘网站</title>
+    <title>时间功能增强版</title>
     <style>
-        /* 原有样式保持不变 */
-        body { 
+        /* 基础样式 */
+        body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 选项卡样式 */
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #ccc;
+        }
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        /* 时间组件通用样式 */
+        .time-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .time-display {
+            font-size: 2.5em;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            margin: 0 5px;
         }
         button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 10px;
+            padding: 8px 15px;
+            margin: 5px;
             cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
         }
-        img {
-            max-width: 100%;
-            height: auto;
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* 世界时钟表格 */
+        #timezone-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 20px;
         }
-
-        /* 转盘新样式 */
-        #roulette-container {
-            position: relative;
-            margin: 50px auto;
-            width: 400px;
-            height: 400px;
+        #timezone-table td, #timezone-table th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
         }
-
-        #roulette {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            position: relative;
-            transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-        }
-
-        .segment {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            left: 50%;
-            top: 0;
-            transform-origin: left bottom;
-            clip-path: polygon(0 0, 100% 0, 100% 100%);
-        }
-
-        .segment-text {
-            position: absolute;
-            left: 60%;
-            top: 15%;
-            transform: translate(-50%, -50%) rotate(90deg);
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            text-shadow: 1px 1px 2px black;
-            white-space: nowrap;
-        }
-
-        #pointer {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-bottom: 30px solid #ff4444;
-            z-index: 100;
+        #timezone-table tr:nth-child(even) {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <h1>选择一张图片</h1>
-    <button onclick="showImage('image1.jpg')">显示图片 1</button>
-    <button onclick="showImage('image2.jpg')">显示图片 2</button>
-    <button onclick="openSettings()">打开转盘设置</button>
-
-    <div id="image-container"></div>
-
-    <div id="settings-modal" style="display: none;">
-        <h3>设置转盘选项（用逗号分隔）</h3>
-        <input type="text" id="roulette-options" placeholder="例如: 早餐,午餐,晚餐">
-        <button onclick="saveOptions()">保存</button>
-        <button onclick="closeSettings()">关闭</button>
+    <!-- 选项卡导航 -->
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'timer')">计时器</button>
+        <button class="tablinks" onclick="openTab(event, 'stopwatch')">秒表</button>
+        <button class="tablinks" onclick="openTab(event, 'clock')">世界时钟</button>
     </div>
 
-    <div id="roulette-container" style="display: none;">
-        <div id="pointer"></div>
-        <div id="roulette"></div>
-        <button onclick="spin()" style="margin-top: 20px;">开始旋转</button>
-        <div id="result"></div>
+    <!-- 计时器 -->
+    <div id="timer" class="tabcontent time-section">
+        <h3>倒计时器</h3>
+        <div>
+            设置时间：
+            <input type="number" id="hours" min="0" placeholder="时"> 时
+            <input type="number" id="minutes" min="0" max="59" placeholder="分"> 分
+            <input type="number" id="seconds" min="0" max="59" placeholder="秒"> 秒
+        </div>
+        <div class="time-display" id="timer-display">00:00:00</div>
+        <button onclick="startTimer()">开始</button>
+        <button onclick="pauseTimer()">暂停</button>
+        <button onclick="resetTimer()">重置</button>
+    </div>
+
+    <!-- 秒表 -->
+    <div id="stopwatch" class="tabcontent time-section">
+        <h3>秒表</h3>
+        <div class="time-display" id="stopwatch-display">00:00:00.000</div>
+        <button onclick="startStopwatch()">开始</button>
+        <button onclick="pauseStopwatch()">暂停</button>
+        <button onclick="resetStopwatch()">重置</button>
+    </div>
+
+    <!-- 世界时钟 -->
+    <div id="clock" class="tabcontent time-section">
+        <h3>世界时钟（UTC时间）</h3>
+        <table id="timezone-table">
+            <tr>
+                <th>时区</th>
+                <th>本地时间</th>
+                <th>UTC时间</th>
+            </tr>
+            <!-- 时区数据将通过JavaScript动态生成 -->
+        </table>
     </div>
 
     <script>
-        // 图片显示功能
-        function showImage(imageName) {
-            const container = document.getElementById('image-container');
-            container.innerHTML = `<img src="${imageName}" alt="显示的图片">`;
+        // 选项卡功能
+        function openTab(evt, tabName) {
+            const tabcontents = document.getElementsByClassName("tabcontent");
+            for (let tab of tabcontents) {
+                tab.style.display = "none";
+            }
+            
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let tab of tablinks) {
+                tab.className = tab.className.replace(" active", "");
+            }
+            
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
         }
 
-        // 转盘功能
-        let options = [];
-        
-        function openSettings() {
-            document.getElementById('settings-modal').style.display = 'block';
-            loadSavedOptions();
-        }
+        // 默认打开第一个选项卡
+        document.getElementsByClassName('tablinks')[0].click();
 
-        function closeSettings() {
-            document.getElementById('settings-modal').style.display = 'none';
-        }
+        /**************** 计时器功能 ****************/
+        let timerInterval;
+        let remainingTime = 0;
+        let isTimerRunning = false;
 
-        function saveOptions() {
-            const input = document.getElementById('roulette-options').value;
-            options = input.split(',').map(item => item.trim());
-            if (options.length < 2) {
-                alert("至少需要2个选项！");
+        function startTimer() {
+            if (isTimerRunning) return;
+            
+            const hours = parseInt(document.getElementById('hours').value) || 0;
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds').value) || 0;
+            
+            remainingTime = hours * 3600 + minutes * 60 + seconds;
+            
+            if (remainingTime <= 0) {
+                alert("请设置有效时间！");
                 return;
             }
-            localStorage.setItem('rouletteOptions', JSON.stringify(options));
-            closeSettings();
-            generateRoulette();
+
+            isTimerRunning = true;
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    alert("时间到！");
+                }
+                updateTimerDisplay();
+            }, 1000);
         }
 
-        function loadSavedOptions() {
-            const saved = localStorage.getItem('rouletteOptions');
-            if (saved) {
-                options = JSON.parse(saved);
-                document.getElementById('roulette-options').value = options.join(', ');
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            remainingTime = 0;
+            document.getElementById('hours').value = '';
+            document.getElementById('minutes').value = '';
+            document.getElementById('seconds').value = '';
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(remainingTime / 3600);
+            const minutes = Math.floor((remainingTime % 3600) / 60);
+            const seconds = remainingTime % 60;
+            document.getElementById('timer-display').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        /**************** 秒表功能 ****************/
+        let stopwatchInterval;
+        let startTime = 0;
+        let elapsedTime = 0;
+        let isStopwatchRunning = false;
+
+        function startStopwatch() {
+            if (!isStopwatchRunning) {
+                startTime = Date.now() - elapsedTime;
+                stopwatchInterval = setInterval(updateStopwatch, 10);
+                isStopwatchRunning = true;
             }
         }
 
-        function generateRoulette() {
-            const roulette = document.getElementById('roulette');
-            roulette.innerHTML = '';
+        function pauseStopwatch() {
+            if (isStopwatchRunning) {
+                clearInterval(stopwatchInterval);
+                elapsedTime = Date.now() - startTime;
+                isStopwatchRunning = false;
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(stopwatchInterval);
+            startTime = 0;
+            elapsedTime = 0;
+            isStopwatchRunning = false;
+            updateStopwatch();
+        }
+
+        function updateStopwatch() {
+            const currentTime = isStopwatchRunning ? Date.now() : startTime + elapsedTime;
+            elapsedTime = currentTime - startTime;
             
-            const total = options.length;
-            const angle = 360 / total;
+            const hours = Math.floor(elapsedTime / 3600000);
+            const minutes = Math.floor((elapsedTime % 3600000) / 60000);
+            const seconds = Math.floor((elapsedTime % 60000) / 1000);
+            const milliseconds = elapsedTime % 1000;
+            
+            document.getElementById('stopwatch-display').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
+        }
 
-            options.forEach((option, index) => {
-                // 创建扇形
-                const segment = document.createElement('div');
-                segment.className = 'segment';
-                segment.style.transform = `rotate(${index * angle}deg)`;
-                segment.style.backgroundColor = `hsl(${(index * 360/total)}, 70%, 50%)`;
+        /**************** 世界时钟功能 ****************/
+        const timezones = [
+            { name: '伦敦', offset: 0 },
+            { name: '巴黎', offset: 1 },
+            { name: '莫斯科', offset: 3 },
+            { name: '迪拜', offset: 4 },
+            { name: '新加坡', offset: 8 },
+            { name: '东京', offset: 9 },
+            { name: '悉尼', offset: 10 },
+            { name: '纽约', offset: -5 },
+            { name: '芝加哥', offset: -6 },
+            { name: '洛杉矶', offset: -8 }
+        ];
 
-                // 添加文字
-                const text = document.createElement('div');
-                text.className = 'segment-text';
-                text.textContent = option;
-                text.style.transform = `translate(-50%, -50%) rotate(${angle/2 + 90}deg)`;
+        function updateWorldClock() {
+            const now = new Date();
+            const table = document.getElementById('timezone-table');
+            
+            // 清空现有内容（保留表头）
+            while(table.rows.length > 1) {
+                table.deleteRow(1);
+            }
 
-                segment.appendChild(text);
-                roulette.appendChild(segment);
+            // 添加本地时间行
+            const localRow = table.insertRow();
+            localRow.insertCell().textContent = '本地时间';
+            localRow.insertCell().textContent = now.toLocaleString();
+            localRow.insertCell().textContent = now.toUTCString().replace(' GMT', '');
+
+            // 添加其他时区
+            timezones.forEach(tz => {
+                const utcTime = new Date(now.getTime() + tz.offset * 3600000);
+                const row = table.insertRow();
+                row.insertCell().textContent = `UTC${tz.offset >= 0 ? '+' : ''}${tz.offset} (${tz.name})`;
+                row.insertCell().textContent = utcTime.toLocaleString();
+                row.insertCell().textContent = now.toUTCString().replace(' GMT', '');
             });
-
-            document.getElementById('roulette-container').style.display = 'block';
         }
 
-        function spin() {
-            const roulette = document.getElementById('roulette');
-            const resultDiv = document.getElementById('result');
-            
-            // 重置旋转
-            roulette.style.transform = 'rotate(0deg)';
-            
-            // 生成随机旋转（至少5圈）
-            const randomAngle = Math.floor(Math.random() * 360) + 360 * 5;
-            roulette.style.transform = `rotate(${-randomAngle}deg)`;
-            
-            // 计算最终结果
-            setTimeout(() => {
-                const finalAngle = (randomAngle % 360) * (Math.PI/180);
-                const selectedIndex = Math.floor((finalAngle / (360 / options.length)) % options.length);
-                resultDiv.textContent = `抽中结果：${options[options.length - 1 - selectedIndex]}`;
-            }, 3000);
-        }
-
-        // 初始化加载保存的选项
-        window.onload = function() {
-            loadSavedOptions();
-            if (options.length > 0) generateRoulette();
-        }
+        // 每秒更新世界时钟
+        setInterval(updateWorldClock, 1000);
+        updateWorldClock(); // 立即初始化
     </script>
 </body>
 </html>
