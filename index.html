@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>我的图片网站</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>选择一张图片</h1>
+    <button onclick="showImage('image1.jpg')">显示图片 1</button>
+    <button onclick="showImage('image2.jpg')">显示图片 2</button>
+
+    <div id="image-container">
+        <!-- 图片会显示在这里 -->
+    </div>
+
+    <script>
+        function showImage(imageName) {
+            const container = document.getElementById('image-container');
+            container.innerHTML = `<img src="${imageName}" alt="显示的图片">`;
+        }
+    </script>
+</body>
+</html>
