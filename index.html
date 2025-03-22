@@ -3,12 +3,22 @@
 <head>
     <title>我的图片网站</title>
     <style>
-        /* 原有样式保持不变 */
-        body { ... }
-        button { ... }
-        img { ... }
-
-        /* 新增转盘相关样式 */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
         #settings-modal {
             display: none;
             position: fixed;
@@ -20,7 +30,6 @@
             border: 2px solid #ccc;
             z-index: 1000;
         }
-
         #roulette {
             width: 300px;
             height: 300px;
@@ -29,7 +38,6 @@
             margin: 20px auto;
             transition: transform 3s ease-out;
         }
-
         .segment {
             position: absolute;
             width: 100%;
@@ -37,7 +45,6 @@
             clip-path: polygon(50% 50%, 100% 0, 100% 100%);
             background: #f0f0f0;
         }
-
         #result {
             font-size: 24px;
             margin-top: 20px;
@@ -48,13 +55,10 @@
     <h1>选择一张图片</h1>
     <button onclick="showImage('image1.jpg')">显示图片 1</button>
     <button onclick="showImage('image2.jpg')">显示图片 2</button>
-
-    <!-- 新增转盘控制按钮 -->
     <button onclick="openSettings()">打开转盘设置</button>
 
     <div id="image-container"></div>
 
-    <!-- 转盘设置弹窗 -->
     <div id="settings-modal">
         <h3>设置转盘选项（用逗号分隔）</h3>
         <input type="text" id="roulette-options" placeholder="例如: 苹果,香蕉,橘子">
@@ -62,7 +66,6 @@
         <button onclick="closeSettings()">关闭</button>
     </div>
 
-    <!-- 转盘容器 -->
     <div id="roulette-container" style="display:none;">
         <div id="roulette"></div>
         <button onclick="spin()">开始旋转</button>
@@ -70,24 +73,24 @@
     </div>
 
     <script>
-        // 原有图片显示代码保持不变
-        function showImage(imageName) { ... }
+        // 图片显示功能
+        function showImage(imageName) {
+            const container = document.getElementById('image-container');
+            container.innerHTML = `<img src="${imageName}" alt="显示的图片">`;
+        }
 
-        // 新增转盘功能代码
+        // 转盘功能
         let options = [];
         
-        // 打开设置弹窗
         function openSettings() {
             document.getElementById('settings-modal').style.display = 'block';
             loadSavedOptions();
         }
 
-        // 关闭弹窗
         function closeSettings() {
             document.getElementById('settings-modal').style.display = 'none';
         }
 
-        // 保存选项到本地存储
         function saveOptions() {
             const input = document.getElementById('roulette-options').value;
             options = input.split(',').map(item => item.trim());
@@ -96,7 +99,6 @@
             generateRoulette();
         }
 
-        // 加载已保存的选项
         function loadSavedOptions() {
             const saved = localStorage.getItem('rouletteOptions');
             if (saved) {
@@ -105,12 +107,10 @@
             }
         }
 
-        // 生成转盘界面
         function generateRoulette() {
             const roulette = document.getElementById('roulette');
             roulette.innerHTML = '';
             
-            // 根据选项数量生成扇形区域
             const angle = 360 / options.length;
             options.forEach((option, index) => {
                 const segment = document.createElement('div');
@@ -123,16 +123,13 @@
             document.getElementById('roulette-container').style.display = 'block';
         }
 
-        // 旋转转盘
         function spin() {
             const roulette = document.getElementById('roulette');
             const resultDiv = document.getElementById('result');
             
-            // 随机旋转（至少3圈）
             const randomAngle = Math.floor(Math.random() * 360) + 360 * 5;
             roulette.style.transform = `rotate(${randomAngle}deg)`;
             
-            // 计算最终结果
             setTimeout(() => {
                 const finalAngle = randomAngle % 360;
                 const selectedIndex = Math.floor(finalAngle / (360 / options.length));
